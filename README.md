@@ -33,3 +33,11 @@ src/
 
 Every push to `main` runs CI (lint, type-check, test, build) and deploys `dist/` to GitHub Pages.
 One-time setup: in the repo's **Settings → Pages**, set **Source** to **GitHub Actions**.
+
+## License
+
+Copyright (C) 2026 Mathias Rieder
+
+BoardSight is free software: you can redistribute it and/or modify it under the terms of the
+[GNU Affero General Public License](LICENSE) as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.

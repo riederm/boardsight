@@ -39,7 +39,7 @@ The plan is iterative. Each iteration ships a usable, deployable site and builds
 **Goal:** an empty but deployable project skeleton.
 
 - [x] `git init`, `.gitignore`, `README.md`
-- [ ] License
+- [x] License: AGPL-3.0-or-later
 - [x] Scaffold Vite + TypeScript + Svelte
 - [x] ESLint, Prettier, Vitest configured; `npm run lint|check|test|build` work
 - [x] CI workflow: lint, type-check, test and build on every push/PR
@@ -222,4 +222,4 @@ Only if there's demand; each item needs a backend decision (e.g. Supabase / Clou
 1. ~~UI framework~~: decided, **Svelte**.
 2. ~~Hosting provider~~: decided, **GitHub Pages**.
 3. **Default notation language:** English letters with a localization switch (planned), or follow the browser locale?
-4. **License:** MIT or other.
+4. ~~License~~: decided, **AGPL-3.0-or-later** (strong copyleft, also covers hosted use).
