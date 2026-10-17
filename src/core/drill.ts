@@ -1,24 +1,26 @@
 // Drill logic: picking targets, judging answers, summarizing a run.
-import { SQUARES, type Square } from './squares'
+import type { Square } from './squares'
+import { isHit, sameTarget, targetPool, type Target, type TargetSet } from './targets'
 
 /** Returns a float in [0, 1), like Math.random. */
 export type Rng = () => number
 
-/** Uniformly random square that is never equal to `previous`. */
-export function randomSquare(previous?: Square, rng: Rng = Math.random): Square {
-  const pool = previous ? SQUARES.filter((s) => s !== previous) : SQUARES
+/** Uniformly random target from `set` that is never equal to `previous`. */
+export function randomTarget(set: TargetSet, previous?: Target, rng: Rng = Math.random): Target {
+  const all = targetPool(set)
+  const pool = previous ? all.filter((t) => !sameTarget(t, previous)) : all
   return pool[Math.floor(rng() * pool.length)]
 }
 
 export interface Answer {
-  target: Square
+  target: Target
   clicked: Square
   correct: boolean
   reactionMs: number
 }
 
-export function judge(target: Square, clicked: Square, reactionMs: number): Answer {
-  return { target, clicked, correct: target === clicked, reactionMs }
+export function judge(target: Target, clicked: Square, reactionMs: number): Answer {
+  return { target, clicked, correct: isHit(target, clicked), reactionMs }
 }
 
 export interface Summary {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FindSquare from './modes/find-square/FindSquare.svelte'
+  import FindDrill from './modes/find/FindDrill.svelte'
 </script>
 
 <header>
@@ -7,7 +7,7 @@
 </header>
 
 <main>
-  <FindSquare />
+  <FindDrill />
 </main>
 
 <style>

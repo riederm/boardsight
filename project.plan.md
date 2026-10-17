@@ -85,6 +85,13 @@ The plan is iterative. Each iteration ships a usable, deployable site and builds
 
 **Done when:** a user can open the site, press Start, run a 30-second drill from either side, and see their score.
 
+**Added: "Files & Ranks" drill**
+
+- [x] Prompt is a file (`c`) or a rank (`6`); clicking any square on that line counts
+- [x] Train files only, ranks only, or both mixed
+- [x] Correct answers flash the whole line; misses outline the correct line
+- [x] Drill selector on the setup screen (Find the Square / Files & Ranks)
+
 ---
 
 ## Iteration 2 — "Name the Square" + Settings

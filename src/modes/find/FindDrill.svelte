@@ -2,10 +2,35 @@
   import { onDestroy } from 'svelte'
   import Board, { type SquareMark } from '../../components/Board.svelte'
   import type { Orientation } from '../../core/board'
-  import { judge, randomSquare, summarize, type Answer } from '../../core/drill'
+  import { judge, randomTarget, summarize, type Answer } from '../../core/drill'
   import type { Square } from '../../core/squares'
+  import {
+    targetLabel,
+    targetName,
+    targetSquares,
+    type Target,
+    type TargetSet,
+  } from '../../core/targets'
 
   type OrientationChoice = Orientation | 'random'
+  type DrillKind = 'squares' | 'lines'
+  type LineSet = 'files' | 'ranks' | 'lines'
+
+  const DRILLS: Record<DrillKind, { title: string; hint: string }> = {
+    squares: { title: 'Find the Square', hint: 'Click the named square, as fast as you can.' },
+    lines: { title: 'Files & Ranks', hint: 'Click any square on the named file or rank.' },
+  }
+  const LINE_SETS: [LineSet, string][] = [
+    ['files', 'Files'],
+    ['ranks', 'Ranks'],
+    ['lines', 'Both'],
+  ]
+  const FOUND_LABEL: Record<TargetSet, string> = {
+    squares: 'squares',
+    files: 'files',
+    ranks: 'ranks',
+    lines: 'files & ranks',
+  }
 
   const RUN_SECONDS = 30
   /** How long the correct square stays revealed after a miss. */
@@ -14,12 +39,15 @@
   let phase = $state<'setup' | 'running' | 'finished'>('setup')
 
   // Settings (persisted in iteration 2)
+  let drill = $state<DrillKind>('squares')
+  let lineSet = $state<LineSet>('lines')
   let orientationChoice = $state<OrientationChoice>('white')
   let showCoordinates = $state(true)
 
   // Run state
   let orientation = $state<Orientation>('white')
-  let target = $state<Square>('e4')
+  let runSet = $state<TargetSet>('squares')
+  let target = $state<Target>({ kind: 'square', square: 'e4' })
   let answers = $state<Answer[]>([])
   let marks = $state<Partial<Record<Square, SquareMark>>>({})
   let markKey = $state(0)
@@ -31,6 +59,7 @@
   let frame = 0
   let revealTimer: ReturnType<typeof setTimeout> | undefined
 
+  const targetSet = $derived<TargetSet>(drill === 'squares' ? 'squares' : lineSet)
   const summary = $derived(summarize(answers))
   const misses = $derived(answers.filter((a) => !a.correct))
   const remainingMs = $derived(Math.max(0, endsAt - now))
@@ -41,13 +70,14 @@
   function start() {
     orientation =
       orientationChoice === 'random' ? (Math.random() < 0.5 ? 'white' : 'black') : orientationChoice
+    runSet = targetSet
     answers = []
     marks = {}
     revealing = false
     phase = 'running'
     now = performance.now()
     endsAt = now + RUN_SECONDS * 1000
-    target = randomSquare()
+    target = randomTarget(runSet)
     promptedAt = now
     frame = requestAnimationFrame(tick)
   }
@@ -78,7 +108,7 @@
   }
 
   function nextTarget() {
-    target = randomSquare(target)
+    target = randomTarget(runSet, target)
     promptedAt = performance.now()
   }
 
@@ -87,11 +117,13 @@
     const answer = judge(target, sq, performance.now() - promptedAt)
     answers.push(answer)
     markKey++
+    const lineMarks = (mark: SquareMark) =>
+      Object.fromEntries(targetSquares(target).map((s) => [s, mark]))
     if (answer.correct) {
-      marks = { [sq]: 'correct' }
+      marks = lineMarks('correct')
       nextTarget()
     } else {
-      marks = { [sq]: 'wrong', [target]: 'reveal' }
+      marks = { ...lineMarks('reveal'), [sq]: 'wrong' }
       revealing = true
       revealTimer = setTimeout(() => {
         revealing = false
@@ -129,7 +161,7 @@
       <span class="time" class:low={remainingMs < 5000}>{Math.ceil(remainingMs / 1000)}s</span>
       <span class="stat"><strong>{summary.wrong}</strong> wrong</span>
     {:else}
-      <span class="stat">Find the Square</span>
+      <span class="stat">{DRILLS[drill].title}</span>
     {/if}
   </div>
   <div class="progress" aria-hidden="true">
@@ -141,9 +173,14 @@
 
   <div class="prompt" aria-live="polite">
     {#if phase === 'running'}
-      <span class="target" class:missed={revealing}>{target}</span>
+      <div class="target-wrap">
+        <span class="target" class:missed={revealing}>{targetLabel(target)}</span>
+        {#if target.kind !== 'square'}
+          <span class="kind">{target.kind}</span>
+        {/if}
+      </div>
     {:else if phase === 'setup'}
-      <span class="hint">Click the named square, as fast as you can.</span>
+      <span class="hint">{DRILLS[drill].hint}</span>
     {:else}
       <span class="hint">Time's up!</span>
     {/if}
@@ -162,7 +199,7 @@
       <div class="overlay">
         <div class="card">
           <div class="score">{summary.correct}</div>
-          <div class="score-label">squares found as {orientation}</div>
+          <div class="score-label">{FOUND_LABEL[runSet]} found as {orientation}</div>
           <dl>
             <div>
               <dt>Accuracy</dt>
@@ -183,7 +220,7 @@
             <p class="misses">
               Missed:
               {#each misses as m, i (i)}
-                <span class="miss">{m.target}<small>(clicked {m.clicked})</small></span>
+                <span class="miss">{targetName(m.target)}<small>(clicked {m.clicked})</small></span>
               {/each}
             </p>
           {/if}
@@ -197,6 +234,28 @@
   </div>
 
   {#if phase === 'setup'}
+    <div class="settings">
+      <fieldset class="segmented">
+        <legend>Drill</legend>
+        {#each Object.entries(DRILLS) as [kind, { title }] (kind)}
+          <label class:selected={drill === kind}>
+            <input type="radio" bind:group={drill} value={kind} />
+            {title}
+          </label>
+        {/each}
+      </fieldset>
+      {#if drill === 'lines'}
+        <fieldset class="segmented">
+          <legend>Train</legend>
+          {#each LINE_SETS as [set, label] (set)}
+            <label class:selected={lineSet === set}>
+              <input type="radio" bind:group={lineSet} value={set} />
+              {label}
+            </label>
+          {/each}
+        </fieldset>
+      {/if}
+    </div>
     <div class="settings">
       <fieldset class="segmented">
         <legend>Play as</legend>
@@ -279,6 +338,19 @@
     font-weight: 700;
     line-height: 1;
     letter-spacing: 0.02em;
+  }
+
+  .target-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .kind {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
   }
 
   .target.missed {

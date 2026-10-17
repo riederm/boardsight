@@ -20,6 +20,19 @@
   const cells = [...Array(64).keys()].map((i) => ({ col: i % 8, row: Math.floor(i / 8) }))
   const markedSquares = $derived(Object.entries(marks) as [Square, SquareMark][])
 
+  // Revealed squares (a square or a whole line) get one outline around all of them.
+  const revealOutline = $derived.by(() => {
+    const revealed = markedSquares
+      .filter(([, mark]) => mark === 'reveal')
+      .map(([sq]) => gridPosition(sq, orientation))
+    if (!revealed.length) return null
+    const cols = revealed.map((c) => c.col)
+    const rows = revealed.map((c) => c.row)
+    const x = Math.min(...cols)
+    const y = Math.min(...rows)
+    return { x, y, width: Math.max(...cols) - x + 1, height: Math.max(...rows) - y + 1 }
+  })
+
   // One handler for the whole board: map the pointer position to a grid cell.
   function handlePointerDown(event: PointerEvent) {
     if (!onSquare || event.button !== 0) return
@@ -63,6 +76,16 @@
       {@const { col, row } = gridPosition(sq, orientation)}
       <rect x={col} y={row} width="1" height="1" class="mark {mark}" />
     {/each}
+    {#if revealOutline}
+      {@const o = revealOutline}
+      <rect
+        x={o.x + 0.04}
+        y={o.y + 0.04}
+        width={o.width - 0.08}
+        height={o.height - 0.08}
+        class="mark outline"
+      />
+    {/if}
   {/key}
 </svg>
 
@@ -121,9 +144,13 @@
   .reveal {
     fill: var(--reveal);
     fill-opacity: 0.45;
+    animation: pulse 350ms ease-in-out 2 alternate;
+  }
+
+  .outline {
+    fill: none;
     stroke: var(--reveal);
     stroke-width: 0.08px;
-    animation: pulse 350ms ease-in-out 2 alternate;
   }
 
   @keyframes fade {
