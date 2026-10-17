@@ -284,7 +284,10 @@
 
 <style>
   .drill {
-    width: min(100%, 34rem, calc(100svh - 15rem));
+    /* Big enough to read from peripheral vision while looking at the board. */
+    --prompt-size: clamp(5rem, 15svh, 9rem);
+
+    width: min(100%, 34rem, calc(100svh - 11rem - var(--prompt-size)));
     min-width: min(100%, 18rem);
     margin: 0 auto;
   }
@@ -332,14 +335,14 @@
   .prompt {
     display: grid;
     place-items: center;
-    height: 5.5rem;
+    height: calc(var(--prompt-size) + 1.5rem);
   }
 
   .target {
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 4rem;
+    font-size: var(--prompt-size);
     font-weight: 700;
-    line-height: 1;
+    line-height: 0.9;
     letter-spacing: 0.02em;
   }
 
@@ -350,7 +353,7 @@
   }
 
   .kind {
-    font-size: 0.85rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--muted);
