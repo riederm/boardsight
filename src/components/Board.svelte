@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-  import { gridPosition, squareAt, type Orientation } from '../core/board'
+  import { gridPosition, squareAt, type GridPosition, type Orientation } from '../core/board'
   import { FILES, isLight, type Square } from '../core/squares'
 
   interface Props {
@@ -13,9 +13,20 @@
     /** Change this to replay mark animations, even on the same squares. */
     markKey?: number
     onSquare?: (sq: Square) => void
+    /** Highlight the whole file or rank under the mouse pointer. */
+    hoverLine?: 'file' | 'rank'
   }
 
-  let { orientation, showCoordinates = true, marks = {}, markKey = 0, onSquare }: Props = $props()
+  let {
+    orientation,
+    showCoordinates = true,
+    marks = {},
+    markKey = 0,
+    onSquare,
+    hoverLine,
+  }: Props = $props()
+
+  let hovered = $state<GridPosition | null>(null)
 
   const cells = [...Array(64).keys()].map((i) => ({ col: i % 8, row: Math.floor(i / 8) }))
   const markedSquares = $derived(Object.entries(marks) as [Square, SquareMark][])
@@ -33,15 +44,25 @@
     return { x, y, width: Math.max(...cols) - x + 1, height: Math.max(...rows) - y + 1 }
   })
 
-  // One handler for the whole board: map the pointer position to a grid cell.
-  function handlePointerDown(event: PointerEvent) {
-    if (!onSquare || event.button !== 0) return
+  // One set of handlers for the whole board: map the pointer position to a grid cell.
+  function cellAt(event: PointerEvent): GridPosition | null {
     const rect = (event.currentTarget as SVGSVGElement).getBoundingClientRect()
     const col = Math.floor(((event.clientX - rect.left) / rect.width) * 8)
     const row = Math.floor(((event.clientY - rect.top) / rect.height) * 8)
-    if (col < 0 || col > 7 || row < 0 || row > 7) return
+    return col < 0 || col > 7 || row < 0 || row > 7 ? null : { col, row }
+  }
+
+  function handlePointerDown(event: PointerEvent) {
+    if (!onSquare || event.button !== 0) return
+    const cell = cellAt(event)
+    if (!cell) return
     event.preventDefault()
-    onSquare(squareAt(col, row, orientation))
+    onSquare(squareAt(cell.col, cell.row, orientation))
+  }
+
+  // Touch has no hover; a highlight left behind by a tap would only mislead.
+  function handlePointerMove(event: PointerEvent) {
+    hovered = event.pointerType === 'touch' ? null : cellAt(event)
   }
 </script>
 
@@ -52,6 +73,8 @@
   role="application"
   aria-label="Chess board, {orientation} at the bottom"
   onpointerdown={handlePointerDown}
+  onpointermove={handlePointerMove}
+  onpointerleave={() => (hovered = null)}
 >
   {#each cells as { col, row } (col * 8 + row)}
     {@const sq = squareAt(col, row, orientation)}
@@ -69,6 +92,16 @@
       {@const sq = squareAt(0, row, orientation)}
       <text x={0.05} y={row + 0.24} class={isLight(sq) ? 'on-light' : 'on-dark'}>{sq[1]}</text>
     {/each}
+  {/if}
+
+  {#if hoverLine && hovered}
+    <rect
+      x={hoverLine === 'file' ? hovered.col : 0}
+      y={hoverLine === 'rank' ? hovered.row : 0}
+      width={hoverLine === 'file' ? 1 : 8}
+      height={hoverLine === 'rank' ? 1 : 8}
+      class="hover"
+    />
   {/if}
 
   {#key markKey}
@@ -127,8 +160,16 @@
     fill: var(--light-square);
   }
 
-  .mark {
+  .mark,
+  .hover {
     pointer-events: none;
+  }
+
+  .hover {
+    fill: var(--hover);
+    fill-opacity: 0.35;
+    stroke: var(--hover);
+    stroke-width: 0.04px;
   }
 
   .correct {

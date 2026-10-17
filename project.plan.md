@@ -91,6 +91,7 @@ The plan is iterative. Each iteration ships a usable, deployable site and builds
 - [x] Train files only, ranks only, or both mixed
 - [x] Correct answers flash the whole line; misses outline the correct line
 - [x] Drill selector on the setup screen (Find the Square / Files & Ranks)
+- [x] Hovering with a mouse highlights the whole file or rank under the pointer
 
 ---
 

@@ -193,6 +193,9 @@
       {marks}
       {markKey}
       onSquare={phase === 'running' ? handleSquare : undefined}
+      hoverLine={phase === 'running' && !revealing && target.kind !== 'square'
+        ? target.kind
+        : undefined}
     />
 
     {#if phase === 'finished'}
