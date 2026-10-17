@@ -286,8 +286,12 @@
   .drill {
     /* Big enough to read from peripheral vision while looking at the board. */
     --prompt-size: clamp(5rem, 15svh, 9rem);
+    /* Line height leaves room for descenders (the 'g') above the FILE/RANK caption. */
+    --prompt-height: calc(var(--prompt-size) * 1.15 + 1.5rem);
 
-    width: min(100%, 34rem, calc(100svh - 11rem - var(--prompt-size)));
+    width: min(100%, 34rem, calc(100svh - 9.5rem - var(--prompt-height)));
+    /* Multiple of 8px, so every square is a whole number of pixels with crisp, even edges. */
+    width: round(down, min(100%, 34rem, calc(100svh - 9.5rem - var(--prompt-height))), 8px);
     min-width: min(100%, 18rem);
     margin: 0 auto;
   }
@@ -335,14 +339,14 @@
   .prompt {
     display: grid;
     place-items: center;
-    height: calc(var(--prompt-size) + 1.5rem);
+    height: var(--prompt-height);
   }
 
   .target {
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
     font-size: var(--prompt-size);
     font-weight: 700;
-    line-height: 0.9;
+    line-height: 1.15;
     letter-spacing: 0.02em;
   }
 

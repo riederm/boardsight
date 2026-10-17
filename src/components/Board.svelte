@@ -165,11 +165,10 @@
     pointer-events: none;
   }
 
+  /* Fill only: an outline straddles the square edges and renders unevenly per line. */
   .hover {
     fill: var(--hover);
-    fill-opacity: 0.35;
-    stroke: var(--hover);
-    stroke-width: 0.04px;
+    fill-opacity: 0.4;
   }
 
   .correct {
