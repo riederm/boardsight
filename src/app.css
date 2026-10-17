@@ -4,6 +4,12 @@
   --muted: #6b665e;
   --light-square: #eeeed2;
   --dark-square: #769656;
+  --correct: #2ea043;
+  --wrong: #e5534b;
+  --reveal: #f2b01e;
+  --accent: #3a7d44;
+  --surface: #ffffff;
+  --border: #ddd6cb;
 
   font-family:
     system-ui,
@@ -21,6 +27,9 @@
     --bg: #181715;
     --fg: #ece8e1;
     --muted: #a39d93;
+    --surface: #23211e;
+    --border: #3a3732;
+    --accent: #5aa565;
   }
 }
 

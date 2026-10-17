@@ -66,22 +66,22 @@ The plan is iterative. Each iteration ships a usable, deployable site and builds
 **Core module (`src/core`)**
 
 - [x] `Square` type, `fileIndex`, `rankIndex`, `fromIndices`, `isSquare`, `isLight` (done early in iteration 0)
-- [ ] Random square generator that never repeats the previous square
-- [ ] Unit tests covering all 64 squares
+- [x] Random square generator that never repeats the previous square
+- [x] Unit tests covering all 64 squares
 
 **Board**
 
-- [ ] SVG 8×8 board, responsive (fits phone and desktop)
-- [ ] Click/tap → square mapping that works in **both orientations**
-- [ ] Toggle: show/hide rank and file labels on the board edge
+- [x] SVG 8×8 board, responsive (fits phone and desktop)
+- [x] Click/tap → square mapping that works in **both orientations**
+- [x] Toggle: show/hide rank and file labels on the board edge
 
 **Drill**
 
-- [ ] Shows a target (e.g. **`c6`**) in large type
-- [ ] User clicks a square → instant feedback (green flash = correct; red flash plus the correct square shown = wrong)
-- [ ] Timed run (default 30 s): count correct and wrong answers
-- [ ] End screen: score, accuracy, average reaction time, "Play again"
-- [ ] Orientation selector: White / Black / Random per run
+- [x] Shows a target (e.g. **`c6`**) in large type
+- [x] User clicks a square → instant feedback (green flash = correct; red flash plus the correct square shown = wrong)
+- [x] Timed run (default 30 s): count correct and wrong answers
+- [x] End screen: score, accuracy, average reaction time, "Play again"
+- [x] Orientation selector: White / Black / Random per run
 
 **Done when:** a user can open the site, press Start, run a 30-second drill from either side, and see their score.
 
