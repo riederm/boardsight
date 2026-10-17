@@ -44,7 +44,7 @@ The plan is iterative. Each iteration ships a usable, deployable site and builds
 - [x] ESLint, Prettier, Vitest configured; `npm run lint|check|test|build` work
 - [x] CI workflow: lint, type-check, test and build on every push/PR
 - [x] Deploy job to GitHub Pages (on push to `main`)
-- [ ] Push to GitHub, enable Pages (Source: GitHub Actions); placeholder page is live
+- [x] Push to GitHub, enable Pages (Source: GitHub Actions); placeholder page is live at https://riederm.github.io/boardsight/
 - [x] Folder structure (folders are created as they get their first file):
   ```
   src/
